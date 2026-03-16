@@ -269,6 +269,284 @@ app.use(cors({
 
 ---
 
+## V-11: Dangerous Deserialization
+
+- [ ] Never uses unsafe deserialization methods like `pickle.loads()`, `eval()`, `yaml.load()` (without SafeLoader), or `unserialize()` on untrusted data
+- [ ] Uses safe serialization formats: JSON, MessagePack, Protocol Buffers
+- [ ] If binary serialization is required, implements signature verification before deserialization
+- [ ] Validates deserialized data against a strict schema before use
+- [ ] Implements type checking and bounds validation on all deserialized values
+- [ ] Uses allowlists for object types that can be deserialized
+- [ ] Includes warnings in comments if potentially dangerous deserialization is necessary
+
+**Example Pattern:**
+```python
+# COMPLIANT: uses JSON instead of pickle
+import json
+
+# Serialize
+data = json.dumps({"user_id": 123, "preferences": {...}})
+
+# Deserialize safely
+try:
+    obj = json.loads(data)
+    # Validate schema
+    if not isinstance(obj.get('user_id'), int):
+        raise ValueError('Invalid user_id type')
+except json.JSONDecodeError:
+    # Handle error
+```
+
+---
+
+## V-12: Dependency Confusion
+
+- [ ] Dependencies are specified with exact versions or version ranges (not `*` or `latest`)
+- [ ] Package names are verified against official documentation before installation
+- [ ] Uses lock files (`package-lock.json`, `Pipfile.lock`, `yarn.lock`) to ensure reproducible builds
+- [ ] Runs security audits regularly (`npm audit`, `pip-audit`, `snyk test`)
+- [ ] For critical projects, uses private package registries with allowlists
+- [ ] Verifies package integrity using checksums or signatures when available
+- [ ] Avoids typosquatting by double-checking popular package names
+
+**Example Pattern:**
+```json
+// COMPLIANT: package.json with exact versions
+{
+  "dependencies": {
+    "express": "4.18.2",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "9.0.0"
+  }
+}
+```
+
+```bash
+# Run after installing
+npm audit
+npm audit fix
+```
+
+---
+
+## V-13: Insufficient Logging
+
+- [ ] Security-relevant events are logged: authentication attempts, authorization failures, admin actions, data access, configuration changes
+- [ ] Logs include contextual information: timestamp, user ID, IP address, action, resource, outcome
+- [ ] Sensitive data is excluded from logs: passwords, tokens, API keys, PII (SSNs, credit cards)
+- [ ] Logs use structured format (JSON) for easier parsing and alerting
+- [ ] Log levels are appropriate (ERROR for failures, INFO for events, DEBUG for development only)
+- [ ] Failed login attempts are logged with rate limiting to prevent log flooding
+- [ ] Audit trail for privileged operations is tamper-evident or immutable
+- [ ] Log retention and rotation policies are configured
+
+**Example Pattern:**
+```javascript
+// COMPLIANT: structured security logging
+const logger = require('winston');
+
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await findUserByEmail(email);
+  if (!user || !await bcrypt.compare(password, user.passwordHash)) {
+    logger.warn('Failed login attempt', {
+      event: 'auth.login.failed',
+      email: email, // OK to log email
+      ip: req.ip,
+      timestamp: new Date().toISOString()
+      // Never log: password
+    });
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  logger.info('Successful login', {
+    event: 'auth.login.success',
+    userId: user.id,
+    ip: req.ip,
+    timestamp: new Date().toISOString()
+  });
+});
+```
+
+---
+
+## V-14: Information Disclosure
+
+- [ ] Production error messages are generic (e.g., "An error occurred") without stack traces or internal details
+- [ ] Detailed errors are logged server-side but not sent to clients
+- [ ] Stack traces, file paths, and library versions are hidden in production
+- [ ] Database error messages are not exposed to users
+- [ ] Debug mode is disabled in production environments
+- [ ] Server headers don't reveal technology stack details (X-Powered-By removed)
+- [ ] API responses don't leak information about system internals
+- [ ] HTTP status codes are appropriate but not overly revealing (e.g., use 404 for both "not found" and "not authorized" to prevent enumeration)
+
+**Example Pattern:**
+```javascript
+// COMPLIANT: environment-aware error handling
+app.use((err, req, res, next) => {
+  // Log detailed error server-side
+  logger.error('Request error', {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    userId: req.user?.id
+  });
+
+  // Send generic error to client
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  res.status(err.status || 500).json({
+    error: isDevelopment ? err.message : 'An error occurred',
+    // Only include stack in development
+    ...(isDevelopment && { stack: err.stack })
+  });
+});
+
+// Remove identifying headers
+app.disable('x-powered-by');
+```
+
+---
+
+## V-15: Weak Cryptography
+
+- [ ] Uses strong, modern cryptographic algorithms: AES-256-GCM for encryption, SHA-256 or SHA-3 for hashing (non-passwords), HMAC-SHA256 for message authentication
+- [ ] Never uses weak/broken algorithms: MD5, SHA-1, DES, RC4, ECB mode
+- [ ] Random values use cryptographically secure generators: `crypto.randomBytes()` (Node.js), `secrets` module (Python), not `Math.random()` or `rand()`
+- [ ] HMAC signature verification uses constant-time comparison to prevent timing attacks
+- [ ] Token generation for sessions, password resets, API keys uses sufficient entropy (at least 128 bits)
+- [ ] JWT signatures use RS256 or HS256 with strong secrets, never "none" algorithm
+- [ ] Password reset tokens are cryptographically random and single-use
+
+**Example Pattern:**
+```javascript
+// COMPLIANT: secure random token generation
+const crypto = require('crypto');
+
+// Generate secure reset token
+function generateResetToken() {
+  return crypto.randomBytes(32).toString('hex'); // 256 bits of entropy
+}
+
+// Constant-time signature verification
+function verifyWebhookSignature(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+
+  // Use timingSafeEqual to prevent timing attacks
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}
+```
+
+---
+
+## V-16: Path Traversal
+
+- [ ] File paths never use unsanitized user input
+- [ ] Filenames are validated against allowlists or use cryptographically random identifiers (UUIDs)
+- [ ] Path traversal sequences (`../`, `..\\`, URL-encoded variants) are blocked
+- [ ] Uses path normalization and validation libraries (e.g., `path.resolve()` + verification)
+- [ ] Files are stored outside the web root directory
+- [ ] File access validates ownership/authorization before serving
+- [ ] Content-Type headers are set explicitly (not inferred from user input)
+- [ ] Uses `Content-Disposition: attachment` for downloads to prevent inline execution
+
+**Example Pattern:**
+```javascript
+// COMPLIANT: safe file serving with UUIDs
+const path = require('path');
+const crypto = require('crypto');
+
+// Store files with random names, not user-provided names
+async function uploadFile(fileBuffer, userId) {
+  const fileId = crypto.randomUUID();
+  const filePath = path.join(UPLOAD_DIR, fileId);
+
+  // Save file and metadata separately
+  await fs.writeFile(filePath, fileBuffer);
+  await db.saveFileMetadata({
+    fileId,
+    userId,
+    originalName: sanitizedOriginalName, // For display only
+    storedPath: filePath
+  });
+
+  return fileId;
+}
+
+// Download endpoint uses UUID, not filename
+app.get('/api/files/:fileId', authenticate, async (req, res) => {
+  const file = await db.getFileMetadata(req.params.fileId);
+
+  // Verify ownership
+  if (!file || file.userId !== req.user.id) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+
+  // Serve with explicit headers
+  res.setHeader('Content-Type', file.mimeType);
+  res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
+  res.sendFile(file.storedPath);
+});
+```
+
+---
+
+## V-17: Command Injection
+
+- [ ] Never executes shell commands with unsanitized user input
+- [ ] Uses parameterized command execution (array of arguments, not shell strings)
+- [ ] Avoids shell invocation (`shell: false`, no `sh -c`)
+- [ ] If commands are necessary, validates against a strict allowlist
+- [ ] Blocks shell metacharacters: `;`, `|`, `&`, `$`, backticks, `>`, `<`, `\n`
+- [ ] Uses language-specific libraries instead of shelling out when possible
+- [ ] Implements sandboxing/containerization for any command execution
+- [ ] Logs all command executions for security auditing
+
+**Example Pattern:**
+```javascript
+// COMPLIANT: parameterized command execution
+const { execFile } = require('child_process');
+
+// BAD: exec with shell (vulnerable)
+// exec(`convert ${userInput}.jpg output.png`); // NEVER DO THIS
+
+// GOOD: execFile without shell, with argument array
+const allowedOperations = ['resize', 'rotate', 'crop'];
+
+function processImage(operation, filename) {
+  // Validate operation against allowlist
+  if (!allowedOperations.includes(operation)) {
+    throw new Error('Invalid operation');
+  }
+
+  // Validate filename (use UUID, not user input)
+  if (!/^[a-f0-9-]{36}\.jpg$/.test(filename)) {
+    throw new Error('Invalid filename');
+  }
+
+  // Execute without shell, arguments in array
+  execFile('convert', [
+    path.join(UPLOAD_DIR, filename),
+    '-' + operation, '100x100', // Safe: no user input
+    path.join(OUTPUT_DIR, filename)
+  ], { shell: false, timeout: 10000 }, (error, stdout, stderr) => {
+    if (error) {
+      logger.error('Image processing failed', { error, filename });
+      throw error;
+    }
+  });
+}
+```
+
+---
+
 ## How to Use This Document
 
 1. **During code review:** Check generated code against the relevant checklists
@@ -292,3 +570,10 @@ app.use(cors({
 | V-08 | `app.use(helmet()); app.use(csrf()); app.use(rateLimit());` |
 | V-09 | `.gitignore` includes `.env` before first commit |
 | V-10 | `cors({ origin: allowedOrigins, credentials: true })` |
+| V-11 | `JSON.parse(data)` not `pickle.loads()` or `eval()` |
+| V-12 | `"express": "4.18.2"` + `npm audit` + lock files |
+| V-13 | `logger.info('action', { userId, ip, event }); // never log passwords` |
+| V-14 | `res.json({ error: 'An error occurred' }); // log details server-side` |
+| V-15 | `crypto.randomBytes(32)` + `crypto.timingSafeEqual()` for verification |
+| V-16 | `fileId = crypto.randomUUID(); // never use user input in paths` |
+| V-17 | `execFile(cmd, [args], { shell: false })` + allowlist validation |

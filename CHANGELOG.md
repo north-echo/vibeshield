@@ -2,6 +2,24 @@
 
 All notable changes to VibeShield will be documented in this file.
 
+## [0.2.0] - 2026-03-16
+
+### Added
+- GitHub Copilot adapter (`rules/.github/copilot-instructions.md`)
+- Windsurf adapter (`rules/.windsurfrules`)
+- Aider adapter (`rules/.aider.conf.yml`)
+- Roo Code adapter (`rules/.roo/rules.md`)
+- Supabase stack supplement (`stacks/supabase.md`)
+- Node.js / Express stack supplement (`stacks/node-express.md`)
+- Python (Django/Flask) stack supplement (`stacks/python-flask-django.md`)
+- Docker / container stack supplement (`stacks/container-docker.md`)
+- 15 additional test prompts (T-11 through T-25) covering all vulnerability tiers
+- Expected behavior checklists for V-11 through V-17
+
+### Changed
+- Updated README with full tool adapter and stack supplement documentation
+- Fixed GitHub repository URLs across all rules files
+
 ## [0.1.0] - 2026-03-16
 
 ### Added

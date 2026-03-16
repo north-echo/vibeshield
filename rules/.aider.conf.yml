@@ -1,0 +1,52 @@
+# VibeShield Security Rules v0.2.0
+# https://github.com/north-echo/vibeshield
+
+conventions: |
+  ## Project Setup
+  - Verify packages exist in registry before adding
+  - Never use eval/exec/pickle.loads/yaml.load on untrusted input
+  - Add .env, secrets, credential files to .gitignore before first commit
+  - Never commit secrets
+
+  ## Auth & Authorization
+  - All auth server-side. Never client-side only (localStorage, hidden fields, disabled buttons)
+  - Every endpoint checks both authentication AND authorization (who + permission)
+  - Check resource ownership on read/update/delete. Use UUIDs, not sequential IDs
+  - NEVER: DELETE FROM posts WHERE id = ? (no ownership check)
+  - ALWAYS: DELETE FROM posts WHERE id = ? AND user_id = ?
+  - Hash passwords with bcrypt(12+)/argon2id/scrypt. Never plaintext/MD5/SHA-1/SHA-256
+  - Constant-time comparison for HMAC/tokens (hmac.compare_digest, not ==)
+
+  ## Input Validation & Data Handling
+  - Parameterized queries only. Never concatenate user input into SQL
+  - NEVER: f"SELECT * FROM users WHERE id = {user_id}"
+  - ALWAYS: cursor.execute("SELECT * FROM users WHERE id = ?", [user_id])
+  - Sanitize HTML output. Never raw user input in innerHTML/dangerouslySetInnerHTML
+  - Validate file paths. Reject .., absolute paths, null bytes
+  - Never string-interpolate user input into shell commands. Use array args
+  - NEVER: os.system(f"convert {user_file} output.png")
+  - ALWAYS: subprocess.run(["convert", user_file, "output.png"])
+
+  ## API & Network
+  - Never fetch user-supplied URLs without domain allowlist. Block private IPs and 169.254.169.254
+  - Never use CORS * with credentials. Specify exact origins
+  - CSRF tokens on all state-changing endpoints (POST/PUT/DELETE)
+  - Set headers: CSP, X-Content-Type-Options: nosniff, X-Frame-Options: DENY, HSTS
+  - Rate limit auth endpoints and public APIs
+
+  ## Secrets
+  - Never hardcode secrets. Use env vars or secret managers
+  - NEVER: JWT_SECRET = "mysecret123"
+  - ALWAYS: JWT_SECRET = os.environ.get('JWT_SECRET')
+  - Cryptographically random secrets (256+ bits). Different per environment
+  - Validate required env vars at startup
+
+  ## Error Handling
+  - Never expose stack traces or system details in production responses
+  - Log auth events, authz failures, admin actions with timestamps and user IDs
+  - Never log credentials, tokens, or PII
+
+  ## Business Logic
+  - Server-side validation: quantities > 0, prices > 0, bounds checks
+  - Never trust client-provided pricing, discounts, or role info
+  - Validate state transitions. Verify prerequisites before state changes

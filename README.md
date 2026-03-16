@@ -24,7 +24,27 @@ cp rules/CLAUDE.md your-project/CLAUDE.md
 cp rules/.cursorrules your-project/.cursorrules
 ```
 
-**Note:** Additional tool adapters (Copilot, Windsurf, Aider, Roo) coming in v0.2.
+### GitHub Copilot
+```bash
+mkdir -p your-project/.github
+cp rules/.github/copilot-instructions.md your-project/.github/copilot-instructions.md
+```
+
+### Windsurf
+```bash
+cp rules/.windsurfrules your-project/.windsurfrules
+```
+
+### Aider
+```bash
+cp rules/.aider.conf.yml your-project/.aider.conf.yml
+```
+
+### Roo Code
+```bash
+mkdir -p your-project/.roo
+cp rules/.roo/rules.md your-project/.roo/rules.md
+```
 
 ## What's Covered
 
@@ -61,8 +81,18 @@ vibeshield/
 │   └── vibeshield-rules.md       # Canonical ruleset (tool-agnostic)
 ├── rules/
 │   ├── CLAUDE.md                 # Claude Code adapter
-│   └── .cursorrules              # Cursor adapter
-├── stacks/                       # Stack-specific supplements (v0.2)
+│   ├── .cursorrules              # Cursor adapter
+│   ├── .github/
+│   │   └── copilot-instructions.md  # GitHub Copilot adapter
+│   ├── .windsurfrules            # Windsurf adapter
+│   ├── .aider.conf.yml           # Aider adapter
+│   └── .roo/
+│       └── rules.md              # Roo Code adapter
+├── stacks/
+│   ├── supabase.md               # Supabase (RLS, auth, keys)
+│   ├── node-express.md           # Node.js / Express
+│   ├── python-flask-django.md    # Python (Django / Flask)
+│   └── container-docker.md       # Docker / containers
 ├── evidence/
 │   ├── vulnerability-map.md      # V-ID to CVE/advisory cross-reference
 │   └── sources.md                # Research citations
@@ -83,11 +113,14 @@ vibeshield/
 
 ## Stack Supplements
 
-Stack-specific supplements are planned for v0.2:
-- Node/Express
-- Python (Django/Flask)
-- Supabase
-- Docker
+Copy a stack supplement alongside the core rules file for framework-specific guidance:
+
+| Stack | File | Covers |
+|---|---|---|
+| Supabase | `stacks/supabase.md` | RLS enforcement, service key handling, auth config, storage policies |
+| Node/Express | `stacks/node-express.md` | Helmet, rate limiting, CORS, sessions, input validation |
+| Python (Django/Flask) | `stacks/python-flask-django.md` | Django settings, Flask-WTF, CSRF, ORM security |
+| Docker | `stacks/container-docker.md` | Non-root users, multi-stage builds, secret management |
 
 ## Contributing
 
