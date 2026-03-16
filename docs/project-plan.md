@@ -2,10 +2,12 @@
 
 ## Project Plan & Implementation Guide
 
-**Author:** Christopher Lusk  
-**Date:** March 2026  
-**Status:** Draft  
+**Author:** Christopher Lusk
+**Date:** March 2026
+**Status:** v1.0.0 shipped (Phases 1-3 complete)
 **Build Tool:** Claude Code
+
+> **Note:** This is the original project plan used to build VibeShield. It reflects the initial design scope. For current project state, see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md).
 
 ---
 
@@ -301,7 +303,7 @@ claude "Create evidence/vulnerability-map.md that maps each V-ID (V-01 through V
 
 ## 9. Open Questions
 
-1. **Naming:** VibeShield is a working title. Alternatives: `vibe-armor`, `securevibe`, `vibeguard`, `shieldprompt`. Should be memorable, searchable, and not already taken on npm/PyPI/GitHub.
+1. **Naming:** Resolved — VibeShield is the final name.
 2. **Token budget tradeoffs:** 4,000 tokens is aggressive. May need a "full" and "compact" version, or a tiered approach where users opt into stack-specific supplements.
 3. **Rule enforcement vs. guidance:** Some tools (Claude Code) respect `CLAUDE.md` strongly; others may treat rules as suggestions. Need to document observed compliance rates per tool.
 4. **Overlap with tool-native features:** As AI coding tools improve their built-in security, some rules may become redundant. Need a deprecation process.

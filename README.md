@@ -46,6 +46,16 @@ mkdir -p your-project/.roo
 cp rules/.roo/rules.md your-project/.roo/rules.md
 ```
 
+## Why These Rules?
+
+Every VibeShield rule traces to a documented vulnerability in AI-generated code — not best-practice intuition. The [vulnerability evidence map](evidence/vulnerability-map.md) cross-references each rule to specific CVEs, advisories, and research findings:
+
+- **130+ AI-linked CVEs** tracked across 8 tools by [Vibe Security Radar](https://vibe-radar-ten.vercel.app/)
+- **69 vulnerabilities** found across 15 test apps built by 5 major tools (Tenzai, Dec 2025)
+- **2,000+ vulnerabilities** and 400+ exposed secrets in 5,600 deployed vibe-coded apps (Escape.tech)
+
+In our own testing, VibeShield produced a **96% vulnerability reduction** across 10 test prompts and 61 security checks. Full results: [test-results-v0.3.md](docs/test-results-v0.3.md).
+
 ## What's Covered
 
 VibeShield addresses 17 vulnerability patterns organized by frequency and impact:
