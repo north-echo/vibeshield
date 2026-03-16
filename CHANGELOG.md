@@ -2,6 +2,20 @@
 
 All notable changes to VibeShield will be documented in this file.
 
+## [0.3.0] - 2026-03-16
+
+### Added
+- Documentation: How It Works (`docs/how-it-works.md`)
+- Documentation: Comparison with other security approaches (`docs/comparison.md`)
+- Documentation: Full vulnerability taxonomy reference (`docs/taxonomy.md`)
+- Documentation: FAQ (`docs/faq.md`)
+- Documentation: Effectiveness testing methodology (`docs/effectiveness-testing.md`)
+- GitHub issue templates: vulnerability pattern, tool adapter, stack supplement, effectiveness report
+- Community outreach drafts (`docs/outreach-drafts.md`)
+
+### Changed
+- Updated README with documentation links and project structure
+
 ## [0.2.0] - 2026-03-16
 
 ### Added

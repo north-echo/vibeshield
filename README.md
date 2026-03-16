@@ -99,6 +99,12 @@ vibeshield/
 ├── tests/
 │   ├── test-prompts.md           # Prompts that should trigger rules
 │   └── expected-behaviors.md     # What compliant output looks like
+├── docs/
+│   ├── comparison.md             # How VibeShield differs from SAST/linters
+│   ├── how-it-works.md           # How context rules affect generation
+│   ├── taxonomy.md               # Full vulnerability taxonomy
+│   ├── faq.md                    # Common questions
+│   └── effectiveness-testing.md  # Testing methodology
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
 ├── LICENSE                       # Apache 2.0
@@ -121,6 +127,14 @@ Copy a stack supplement alongside the core rules file for framework-specific gui
 | Node/Express | `stacks/node-express.md` | Helmet, rate limiting, CORS, sessions, input validation |
 | Python (Django/Flask) | `stacks/python-flask-django.md` | Django settings, Flask-WTF, CSRF, ORM security |
 | Docker | `stacks/container-docker.md` | Non-root users, multi-stage builds, secret management |
+
+## Documentation
+
+- [How It Works](docs/how-it-works.md) — How context rules affect AI code generation
+- [Comparison](docs/comparison.md) — How VibeShield differs from SAST, linters, and other approaches
+- [Vulnerability Taxonomy](docs/taxonomy.md) — Full taxonomy of 17 AI vulnerability patterns
+- [FAQ](docs/faq.md) — Common questions
+- [Effectiveness Testing](docs/effectiveness-testing.md) — Methodology for measuring rule effectiveness
 
 ## Contributing
 
