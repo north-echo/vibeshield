@@ -1,4 +1,4 @@
-# VibeShield Security Rules v0.2.0
+# VibeShield Security Rules v1.0.0
 
 Follow these security rules when generating, modifying, or reviewing code.
 

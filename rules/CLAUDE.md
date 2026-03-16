@@ -1,4 +1,4 @@
-# VibeShield Security Rules v0.1.0
+# VibeShield Security Rules v1.0.0
 
 This file contains security rules for the VibeShield project. You MUST follow these rules when generating, modifying, or reviewing code.
 

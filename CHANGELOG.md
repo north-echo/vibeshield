@@ -2,6 +2,15 @@
 
 All notable changes to VibeShield will be documented in this file.
 
+## [1.0.0] - 2026-03-16
+
+### Added
+- Effectiveness test results: 96% vulnerability reduction across all tiers (`docs/test-results-v0.3.md`)
+
+### Changed
+- All rules files updated to v1.0.0
+- Stable release with validated effectiveness data
+
 ## [0.3.0] - 2026-03-16
 
 ### Added

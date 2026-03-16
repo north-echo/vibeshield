@@ -2,7 +2,7 @@
 
 **Project:** VibeShield
 **Description:** Canonical security rules for AI-generated code validation
-**Version:** 0.1.0
+**Version:** 1.0.0
 **Source:** https://github.com/north-echo/vibeshield
 
 ## Overview
@@ -254,4 +254,4 @@ These rules address the most common vulnerabilities in AI-generated code. They d
 
 ---
 
-**End of VibeShield Security Rules v0.1.0**
+**End of VibeShield Security Rules v1.0.0**
