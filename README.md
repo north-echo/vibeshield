@@ -46,15 +46,38 @@ mkdir -p your-project/.roo
 cp rules/.roo/rules.md your-project/.roo/rules.md
 ```
 
-## Why These Rules?
+## Why VibeShield?
 
-Every VibeShield rule traces to a documented vulnerability in AI-generated code — not best-practice intuition. The [vulnerability evidence map](evidence/vulnerability-map.md) cross-references each rule to specific CVEs, advisories, and research findings:
+Other projects tell AI tools what secure code looks like. VibeShield tells them what they specifically get wrong, proves it with CVE data, and measures whether the rules actually work.
 
-- **130+ AI-linked CVEs** tracked across 8 tools by [Vibe Security Radar](https://vibe-radar-ten.vercel.app/)
+Three capabilities no competing project has shipped:
+
+1. **Evidence-mapped rules** — every rule traces to a specific CVE, advisory, or published research finding, not best-practice intuition. See the [evidence map](evidence/vulnerability-map.md).
+2. **Failure-mode organization** — rules organized by how AI fails (17 documented patterns), not by language or framework. See the [taxonomy](docs/taxonomy.md).
+3. **Effectiveness testing** — reproducible before/after measurements of rule impact on AI-generated vulnerability rates. See the [methodology](tests/methodology.md).
+
+## Evidence
+
+Every VibeShield rule traces to documented vulnerabilities in AI-generated code. The [evidence map](evidence/vulnerability-map.md) cross-references each of the 17 V-IDs to specific CVEs, advisories, and research findings.
+
+| Metric | Value |
+|---|---|
+| Total CVEs/advisories mapped | 7 |
+| V-IDs with CVE/advisory evidence | 6 / 17 |
+| V-IDs with research evidence | 17 / 17 |
+| AI-linked CVEs tracked (Vibe Radar) | 130+ |
+
+Key research:
 - **69 vulnerabilities** found across 15 test apps built by 5 major tools (Tenzai, Dec 2025)
 - **2,000+ vulnerabilities** and 400+ exposed secrets in 5,600 deployed vibe-coded apps (Escape.tech)
+- **45%** of AI-generated code contains security flaws (Veracode 2025)
+- **2.74x** higher vulnerability rate in AI co-authored pull requests (CodeRabbit, Dec 2025)
 
-In our own testing, VibeShield produced a **96% vulnerability reduction** across 10 test prompts and 61 security checks. Full results: [test-results-v0.3.md](docs/test-results-v0.3.md).
+## Effectiveness Testing
+
+VibeShield includes a [reproducible test framework](tests/methodology.md) for measuring whether the rules actually reduce vulnerabilities. The framework uses 8 standardized [test prompts](tests/prompts/) covering all 17 V-IDs across two tools (Claude Code and Cursor) with baseline vs. VibeShield conditions.
+
+In preliminary v1 testing (single tool, single run per prompt, rules injected into agent context), VibeShield showed a **96% vulnerability reduction** across 10 prompts and 61 security checks. Full v1 results: [test-results-v0.3.md](docs/test-results-v0.3.md). These results are directionally useful but not yet reproducible — the v2 framework above adds multi-tool coverage, 3x repetitions, and standardized scoring to produce publishable results.
 
 ## What's Covered
 
@@ -107,7 +130,10 @@ vibeshield/
 │   ├── vulnerability-map.md      # V-ID to CVE/advisory cross-reference
 │   └── sources.md                # Research citations
 ├── tests/
-│   ├── test-prompts.md           # Prompts that should trigger rules
+│   ├── prompts/                  # 8 standardized test prompts (P-01 to P-08)
+│   ├── results/                  # Test results and reporting template
+│   ├── methodology.md            # Effectiveness testing procedure
+│   ├── test-prompts.md           # Additional test prompts
 │   └── expected-behaviors.md     # What compliant output looks like
 ├── docs/
 │   ├── comparison.md             # How VibeShield differs from SAST/linters
@@ -138,13 +164,18 @@ Copy a stack supplement alongside the core rules file for framework-specific gui
 | Python (Django/Flask) | `stacks/python-flask-django.md` | Django settings, Flask-WTF, CSRF, ORM security |
 | Docker | `stacks/container-docker.md` | Non-root users, multi-stage builds, secret management |
 
+## Prior Art
+
+Several projects ship security rules for AI coding assistants. VibeShield was built with awareness of these and designed to complement, not replace, them. Wiz's `secure-rules-files` covers breadth across many languages; CSA's R.A.I.L.G.U.A.R.D provides a reasoning framework; Secure Code Warrior and Pillar Security's `cursor-security-rules` offer additional coverage. VibeShield is narrower but evidence-backed, failure-mode-organized, and empirically tested. See [docs/comparison.md](docs/comparison.md) for the full comparison.
+
 ## Documentation
 
 - [How It Works](docs/how-it-works.md) — How context rules affect AI code generation
-- [Comparison](docs/comparison.md) — How VibeShield differs from SAST, linters, and other approaches
+- [Comparison](docs/comparison.md) — How VibeShield compares to prior art and other approaches
 - [Vulnerability Taxonomy](docs/taxonomy.md) — Full taxonomy of 17 AI vulnerability patterns
+- [Evidence Map](evidence/vulnerability-map.md) — V-ID to CVE/advisory cross-reference
+- [Effectiveness Testing](tests/methodology.md) — Reproducible test framework and methodology
 - [FAQ](docs/faq.md) — Common questions
-- [Effectiveness Testing](docs/effectiveness-testing.md) — Methodology for measuring rule effectiveness
 
 ## Contributing
 
@@ -156,6 +187,7 @@ Apache 2.0
 
 ## References
 
+### Research
 - [Vibe Security Radar](https://vibe-radar-ten.vercel.app/) — 130+ AI-linked CVEs tracked across 8 tools (March 2026)
 - Veracode GenAI Code Security Report (2025) — 45% of AI-generated code contains flaws
 - Tenzai Study (Dec 2025) — 69 vulnerabilities across 15 test apps built by 5 AI coding tools
@@ -166,3 +198,8 @@ Apache 2.0
 - Kaspersky: Vibe Coding Security Risks (Oct 2025)
 - Invicti: Security Issues in Vibe-Coded Web Apps
 - OWASP Top 10 (2021), OWASP LLM Top 10 (2025)
+
+### Prior Art
+- [Wiz secure-rules-files](https://github.com/wiz-sec-public/secure-rules-files) — Language-organized security rules for AI tools
+- [CSA R.A.I.L.G.U.A.R.D](https://github.com/brighton-labs/railguard-cursor-coding) — Cognitive security reasoning framework
+- [Pillar Security cursor-security-rules](https://github.com/matank001/cursor-security-rules) — Cursor-specific security rules
